@@ -1,115 +1,64 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-export interface UserProfile {
-  _id: string;
-  email: string;
-  displayName: string;
-  role: 'admin' | 'user';
-  sponsorId: string;
-  referralCode: string;
-  createdAt: string;
-  isAdmin?: boolean;
-  firstName?: string;
-  lastName?: string;
-  address?: string;
-  bankAccountNumber?: string;
-  bankAccountName?: string;
-  bankName?: string;
-  lft?: number;
-  rgt?: number;
-  lastLoginAt?: string;
-  profileImage?: string;
-  avatarUrl?: string;
-  notifications?: { id: string; message: string; read: boolean; createdAt: string; }[];
-}
+﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AuthContextType {
-  user: any | null;
-  profile: UserProfile | null;
-  loading: boolean;
-  signUpWithEmail: (password: string, extraData: Partial<UserProfile>) => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  updateProfile: (updates: Partial<UserProfile>) => void;
+  user: any;
+  login: (email: string, pass: string) => Promise<any>;
+  signup: (userData: any) => Promise<any>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  profile: null,
-  loading: true,
-  signUpWithEmail: async () => {},
-  signInWithEmail: async () => {},
-  signOut: async () => {},
-});
-
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    if (storedUserId) {
-      fetch(`/api/auth/me?id=${storedUserId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.user) {
-            setUser({ uid: data.user._id, email: data.user.email });
-            setProfile(data.user);
-          } else {
-            localStorage.removeItem('userId');
-          }
-        })
-        .catch(err => console.error(err))
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
+    const storedUser = localStorage.getItem('gse_user');
+    if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  const signUpWithEmail = async (password: string, extraData: Partial<UserProfile>) => {
+  const login = async (email: string, pass: string) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setUser(data);
+      localStorage.setItem('gse_user', JSON.stringify(data));
+    }
+    return data;
+  };
+
+  const signup = async (userData: any) => {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, extraData })
+      body: JSON.stringify(userData),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to sign up');
-    
-    localStorage.setItem('userId', data.user._id);
-    setUser({ uid: data.user._id, email: data.user.email });
-    setProfile(data.user);
+    if (res.ok) {
+      setUser(data);
+      localStorage.setItem('gse_user', JSON.stringify(data));
+    }
+    return data;
   };
 
-  const signInWithEmail = async (email: string, password: string) => {
-    const res = await // Direct login handling, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to sign in');
-
-    localStorage.setItem('userId', data.user._id);
-    setUser({ uid: data.user._id, email: data.user.email });
-    setProfile(data.user);
-  };
-
-  const updateProfile = (updates: Partial<UserProfile>) => {
-    setProfile(prev => prev ? { ...prev, ...updates } : null);
-  };
-
-  const signOut = async () => {
-    localStorage.removeItem('userId');
+  const logout = () => {
     setUser(null);
-    setProfile(null);
+    localStorage.removeItem('gse_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUpWithEmail, signInWithEmail, signOut, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
 };
