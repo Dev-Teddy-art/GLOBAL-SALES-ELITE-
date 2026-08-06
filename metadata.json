@@ -1,0 +1,8 @@
+{
+  "name": "Global Elite Real Estate Network",
+  "description": "Maximize your potential of being an elite sales realtor with Global Sales Elite. Track sales, earn commissions, and build your referral network.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
