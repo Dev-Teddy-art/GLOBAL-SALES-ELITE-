@@ -1,13 +1,13 @@
-// Proxy client for browser usage to bypass CORS
-export const sanityClient = {
-  fetch: async (query: string, params?: any) => {
-    const res = await fetch('/api/sanity/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, params })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to query database');
-    return data;
-  }
-};
+﻿import { createClient } from '@sanity/client';
+
+export const sanityClient = createClient({
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID || 'your_project_id',
+  dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
+  token: import.meta.env.VITE_SANITY_API_TOKEN,
+  useCdn: false,
+  apiVersion: '2023-01-01',
+});
+
+export async function sanityQuery(query: string, params: Record<string, any> = {}) {
+  return await sanityClient.fetch(query, params);
+}
