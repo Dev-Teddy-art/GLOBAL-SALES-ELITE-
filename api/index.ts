@@ -1,4 +1,4 @@
-﻿import express from 'express';
-import serverApp from '../server';
+﻿import serverless from 'serverless-http';
+import app from '../server';
 
-export default serverApp;
+export default serverless(app);
