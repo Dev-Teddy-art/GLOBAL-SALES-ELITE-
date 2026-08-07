@@ -16,6 +16,7 @@ export interface UserProfile {
 interface AuthContextType {
   user: any;
   profile: UserProfile | null;
+  isFirstLogin: boolean;
   isNewUser: boolean;
   login: (email: string, pass: string) => Promise<any>;
   signIn: (email: string, pass: string) => Promise<any>;
@@ -34,7 +35,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
-  const [isNewUser, setIsNewUser] = useState<boolean>(false);
+  const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
 
   const formatUserData = (userData: any) => {
     if (!userData) return null;
@@ -78,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const formatted = formatUserData(foundUser);
-      setIsNewUser(false);
+      setIsFirstLogin(false);
       setUser(formatted);
       localStorage.setItem('gse_user', JSON.stringify(formatted));
       return formatted;
@@ -112,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const createdUser = await sanityClient.create(newUserDoc);
       const formatted = formatUserData(createdUser);
-      setIsNewUser(true);
+      setIsFirstLogin(true);
       setUser(formatted);
       localStorage.setItem('gse_user', JSON.stringify(formatted));
       return formatted;
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     setUser(null);
-    setIsNewUser(false);
+    setIsFirstLogin(false);
     localStorage.removeItem('gse_user');
   };
 
@@ -155,7 +156,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user: activeUser,
         profile: activeUser,
-        isNewUser,
+        isFirstLogin,
+        isNewUser: isFirstLogin,
         login: authenticateUser,
         signIn: authenticateUser,
         signInWithEmail: authenticateUser,
