@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { sanityClient } from '../lib/sanity';
 
 export interface UserProfile {
@@ -7,6 +7,7 @@ export interface UserProfile {
   name?: string;
   role?: string;
   avatarUrl?: string;
+  [key: string]: any;
 }
 
 interface AuthContextType {
@@ -15,8 +16,11 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<any>;
   signIn: (email: string, pass: string) => Promise<any>;
   signInWithEmail: (email: string, pass: string) => Promise<any>;
-  signup: (userData: any) => Promise<any>;
-  signUp: (userData: any) => Promise<any>;
+  signup: (...args: any[]) => Promise<any>;
+  signUp: (...args: any[]) => Promise<any>;
+  signUpWithEmail: (...args: any[]) => Promise<any>;
+  register: (...args: any[]) => Promise<any>;
+  createAccount: (...args: any[]) => Promise<any>;
   logout: () => void;
   signOut: () => void;
   updateProfile: (updatedData: Partial<UserProfile>) => Promise<void>;
@@ -59,13 +63,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const registerUser = async (userData: any) => {
+  const registerUser = async (...args: any[]) => {
     try {
+      let userData: any = {};
+      if (typeof args[0] === 'object' && args[0] !== null) {
+        userData = args[0];
+      } else {
+        const [email, password, name, referralCode] = args;
+        userData = { email, password, name, referralCode };
+      }
+
       const newUserDoc = {
         _type: 'user',
         ...userData,
         createdAt: new Date().toISOString(),
       };
+
       const createdUser = await sanityClient.create(newUserDoc);
       setUser(createdUser);
       localStorage.setItem('gse_user', JSON.stringify(createdUser));
@@ -96,6 +109,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithEmail: authenticateUser,
         signup: registerUser,
         signUp: registerUser,
+        signUpWithEmail: registerUser,
+        register: registerUser,
+        createAccount: registerUser,
         logout,
         signOut: logout,
         updateProfile,
