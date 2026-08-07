@@ -124,7 +124,7 @@ function SalesLogger() {
             />
           </div>
           <div className="flex-1 w-full">
-            <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-2">Amount Sold (₦)</label>
+            <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-2">Amount Sold (???)</label>
             <input 
               type="number" 
               min="0"
@@ -201,9 +201,9 @@ function CommissionCalculator({ role, defaultL1 = 0, defaultL2 = 0, defaultL3 = 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Average Sale Value (₦)</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Average Sale Value (???)</label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">₦</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-bold">???</span>
               <input 
                 type="number" 
                 min="0"
@@ -265,7 +265,7 @@ function CommissionCalculator({ role, defaultL1 = 0, defaultL2 = 0, defaultL3 = 
           
           <span className="text-white/80 font-bold uppercase tracking-widest text-xs mb-4 z-10">Estimated Monthly Earnings</span>
           <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-md mb-6 z-10 font-mono tracking-tighter">
-            {currencyFormatter.format(totalEarnings).replace('NGN', '₦').trim()}
+            {currencyFormatter.format(totalEarnings).replace('NGN', '???').trim()}
           </span>
           <div className="h-1.5 w-12 bg-gradient-to-r from-[#EF4444] to-[#EF4444]/80 rounded-full mb-6 z-10" />
           <p className="text-white/70 text-sm max-w-[250px] font-medium z-10 leading-relaxed mb-6">
@@ -317,7 +317,7 @@ function UserSalesHistory() {
           <thead>
             <tr className="border-b border-gray-200 dark:border-white/10">
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Property</th>
-              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Amount (₦)</th>
+              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Amount (???)</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Date Sold</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Approval Status</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest text-right">Payout Status</th>
@@ -332,7 +332,7 @@ function UserSalesHistory() {
               sales.map((s) => (
                 <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                   <td className="py-3 px-4 text-sm font-bold text-gray-900 dark:text-white">{s.propertyName || 'N/A'}</td>
-                  <td className="py-3 px-4 text-sm font-mono text-gray-900 dark:text-white">₦{s.amount?.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-sm font-mono text-gray-900 dark:text-white">???{s.amount?.toLocaleString()}</td>
                   <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{s.dateSold ? new Date(s.dateSold).toLocaleDateString() : 'N/A'}</td>
                   <td className="py-3 px-4">
                     {s.status === 'pending' ? (
@@ -453,7 +453,7 @@ export function Dashboard() {
       } catch (err: any) {
         console.error("Missing Sanity Project ID or API Token. Please check your environment variables.", err);
         // Fallback for dashboard error state
-        alert("Missing Sanity Project ID or API Token. Please check your environment variables.");
+        // alert removed
       } finally {
         setLoading(false);
       }
@@ -570,4 +570,5 @@ export function Dashboard() {
     </div>
   );
 }
+
 
