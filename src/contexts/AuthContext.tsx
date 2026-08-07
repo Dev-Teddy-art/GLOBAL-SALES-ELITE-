@@ -2,9 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { sanityClient } from '../lib/sanity';
 
 export interface UserProfile {
+  _id?: string;
   id?: string;
   email?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   role?: string;
   avatarUrl?: string;
   [key: string]: any;
@@ -13,6 +16,7 @@ export interface UserProfile {
 interface AuthContextType {
   user: any;
   profile: UserProfile | null;
+  isNewUser: boolean;
   login: (email: string, pass: string) => Promise<any>;
   signIn: (email: string, pass: string) => Promise<any>;
   signInWithEmail: (email: string, pass: string) => Promise<any>;
@@ -30,12 +34,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
+  const [isNewUser, setIsNewUser] = useState<boolean>(false);
+
+  const formatUserData = (userData: any) => {
+    if (!userData) return null;
+    const computedName =
+      userData.name ||
+      (userData.firstName && userData.lastName
+        ? `${userData.firstName} ${userData.lastName}`
+        : userData.firstName || userData.lastName || userData.email?.split('@')[0] || 'Member');
+
+    return {
+      ...userData,
+      name: computedName,
+      firstName: userData.firstName || computedName.split(' ')[0] || '',
+      lastName: userData.lastName || computedName.split(' ')[1] || '',
+    };
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem('gse_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(formatUserData(parsed));
       } catch (e) {
         localStorage.removeItem('gse_user');
       }
@@ -55,9 +77,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Invalid email or password.');
       }
 
-      setUser(foundUser);
-      localStorage.setItem('gse_user', JSON.stringify(foundUser));
-      return foundUser;
+      const formatted = formatUserData(foundUser);
+      setIsNewUser(false);
+      setUser(formatted);
+      localStorage.setItem('gse_user', JSON.stringify(formatted));
+      return formatted;
     } catch (err: any) {
       throw new Error(err.message || 'Authentication failed');
     }
@@ -69,41 +93,69 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (typeof args[0] === 'object' && args[0] !== null) {
         userData = args[0];
       } else {
-        const [email, password, name, referralCode] = args;
-        userData = { email, password, name, referralCode };
+        const [email, password, firstName, lastName, referralCode] = args;
+        userData = { email, password, firstName, lastName, referralCode };
       }
+
+      const computedName =
+        userData.name ||
+        (userData.firstName && userData.lastName
+          ? `${userData.firstName} ${userData.lastName}`
+          : userData.firstName || userData.email?.split('@')[0]);
 
       const newUserDoc = {
         _type: 'user',
         ...userData,
+        name: computedName,
         createdAt: new Date().toISOString(),
       };
 
       const createdUser = await sanityClient.create(newUserDoc);
-      setUser(createdUser);
-      localStorage.setItem('gse_user', JSON.stringify(createdUser));
-      return createdUser;
+      const formatted = formatUserData(createdUser);
+      setIsNewUser(true);
+      setUser(formatted);
+      localStorage.setItem('gse_user', JSON.stringify(formatted));
+      return formatted;
     } catch (err: any) {
       throw new Error(err.message || 'Registration failed');
     }
   };
 
   const updateProfile = async (updatedData: Partial<UserProfile>) => {
-    const updated = { ...user, ...updatedData };
-    setUser(updated);
-    localStorage.setItem('gse_user', JSON.stringify(updated));
+    try {
+      const targetId = user?._id || user?.id;
+      const mergedLocal = formatUserData({ ...user, ...updatedData });
+
+      if (targetId) {
+        await sanityClient
+          .patch(targetId)
+          .set({ ...updatedData, name: mergedLocal.name })
+          .commit();
+      }
+
+      setUser(mergedLocal);
+      localStorage.setItem('gse_user', JSON.stringify(mergedLocal));
+    } catch (err: any) {
+      const mergedLocal = formatUserData({ ...user, ...updatedData });
+      setUser(mergedLocal);
+      localStorage.setItem('gse_user', JSON.stringify(mergedLocal));
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setIsNewUser(false);
     localStorage.removeItem('gse_user');
   };
+
+  const activeUser = formatUserData(user);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        profile: user,
+        user: activeUser,
+        profile: activeUser,
+        isNewUser,
         login: authenticateUser,
         signIn: authenticateUser,
         signInWithEmail: authenticateUser,

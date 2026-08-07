@@ -361,7 +361,7 @@ function UserSalesHistory() {
 }
 
 export function Dashboard() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, isNewUser, signOut } = useAuth();
   const [showToast, setShowToast] = useState(false);
   const [downline, setDownline] = useState<(UserProfile & { id: string })[]>([]);
   const [level2Downline, setLevel2Downline] = useState<(UserProfile & { id: string })[]>([]);
@@ -570,5 +570,6 @@ export function Dashboard() {
     </div>
   );
 }
+
 
 
