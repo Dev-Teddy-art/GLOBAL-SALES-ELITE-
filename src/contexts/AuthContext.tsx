@@ -1,10 +1,25 @@
 ﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import { sanityClient } from '../lib/sanity';
+
+export interface UserProfile {
+  id?: string;
+  email?: string;
+  name?: string;
+  role?: string;
+  avatarUrl?: string;
+}
 
 interface AuthContextType {
   user: any;
+  profile: UserProfile | null;
   login: (email: string, pass: string) => Promise<any>;
+  signIn: (email: string, pass: string) => Promise<any>;
+  signInWithEmail: (email: string, pass: string) => Promise<any>;
   signup: (userData: any) => Promise<any>;
+  signUp: (userData: any) => Promise<any>;
   logout: () => void;
+  signOut: () => void;
+  updateProfile: (updatedData: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,35 +29,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const storedUser = localStorage.getItem('gse_user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        localStorage.removeItem('gse_user');
+      }
+    }
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setUser(data);
-      localStorage.setItem('gse_user', JSON.stringify(data));
+  const authenticateUser = async (email: string, pass: string) => {
+    try {
+      const query = `*[_type == "user" && email == $email][0]`;
+      const foundUser = await sanityClient.fetch(query, { email: email.toLowerCase() });
+
+      if (!foundUser) {
+        throw new Error('No user account found with this email address.');
+      }
+
+      if (foundUser.password && foundUser.password !== pass) {
+        throw new Error('Invalid email or password.');
+      }
+
+      setUser(foundUser);
+      localStorage.setItem('gse_user', JSON.stringify(foundUser));
+      return foundUser;
+    } catch (err: any) {
+      throw new Error(err.message || 'Authentication failed');
     }
-    return data;
   };
 
-  const signup = async (userData: any) => {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setUser(data);
-      localStorage.setItem('gse_user', JSON.stringify(data));
+  const registerUser = async (userData: any) => {
+    try {
+      const newUserDoc = {
+        _type: 'user',
+        ...userData,
+        createdAt: new Date().toISOString(),
+      };
+      const createdUser = await sanityClient.create(newUserDoc);
+      setUser(createdUser);
+      localStorage.setItem('gse_user', JSON.stringify(createdUser));
+      return createdUser;
+    } catch (err: any) {
+      throw new Error(err.message || 'Registration failed');
     }
-    return data;
+  };
+
+  const updateProfile = async (updatedData: Partial<UserProfile>) => {
+    const updated = { ...user, ...updatedData };
+    setUser(updated);
+    localStorage.setItem('gse_user', JSON.stringify(updated));
   };
 
   const logout = () => {
@@ -51,7 +87,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile: user,
+        login: authenticateUser,
+        signIn: authenticateUser,
+        signInWithEmail: authenticateUser,
+        signup: registerUser,
+        signUp: registerUser,
+        logout,
+        signOut: logout,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
