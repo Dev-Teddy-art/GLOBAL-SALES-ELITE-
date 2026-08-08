@@ -11,6 +11,7 @@ import { Shield, ChevronLeft, ChevronDown, ChevronRight, CheckCircle, DollarSign
 // Specialized Admin Binary Tree Component
 function AdminBinaryTree({ users, onManageUser }: { users: (UserProfile & { id: string })[], onManageUser?: (u: any) => void }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [inspectModalUser, setInspectModalUser] = useState<any>(null);
   const [focusedId, setFocusedId] = useState<string | null>(null);
 
   // Build a fast lookup and basic tree structure
@@ -930,12 +931,71 @@ export function AdminConsolePage() {
             </div>
           </div>
         </div>
+      )}      {/* User Details Modal */}
+      {inspectModalUser && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0F172A] border border-white/20 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 relative animate-in fade-in zoom-in-95 duration-200 text-left">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center font-bold text-white text-xl shadow-lg">
+                  {(inspectModalUser.displayName || inspectModalUser.name || inspectModalUser.email || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">{inspectModalUser.displayName || inspectModalUser.name || 'User Profile'}</h3>
+                  <p className="text-xs text-gray-400">{inspectModalUser.email || 'No email registered'}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setInspectModalUser(null)}
+                className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+                <span className="text-xs text-gray-400 block mb-1">Referral Code</span>
+                <span className="font-mono font-bold text-red-400">{inspectModalUser.referralCode || 'N/A'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+                <span className="text-xs text-gray-400 block mb-1">Sponsor Code</span>
+                <span className="font-mono font-bold text-white">{inspectModalUser.sponsorId || 'Root / Direct'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+                <span className="text-xs text-gray-400 block mb-1">Phone Number</span>
+                <span className="font-bold text-white">{inspectModalUser.phone || inspectModalUser.phoneNumber || 'Not provided'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl">
+                <span className="text-xs text-gray-400 block mb-1">Account Role</span>
+                <span className="font-bold text-red-400 capitalize">{inspectModalUser.role || 'Member'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3.5 rounded-2xl col-span-2">
+                <span className="text-xs text-gray-400 block mb-1">Bank Payout Info</span>
+                <span className="font-bold text-white block mt-0.5">
+                  {inspectModalUser.bankName ? `${inspectModalUser.bankName} - ${inspectModalUser.accountNumber} (${inspectModalUser.accountName})` : 'No banking details submitted'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setInspectModalUser(null)}
+                className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-white transition-all shadow-lg text-sm"
+              >
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+
 
     </div>
 
   );
 }
+
 
 
 
