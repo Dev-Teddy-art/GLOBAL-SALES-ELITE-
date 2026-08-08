@@ -67,29 +67,39 @@ function SalesLogger() {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || amount <= 0 || !propertyName || !dateSold || !profile) return;
-    
+    const numericAmount = parseFloat(String(amount));
+    if (!numericAmount || numericAmount <= 0 || !propertyName || !dateSold || !profile) {
+      alert("Please enter a valid property name, amount, and date.");
+      return;
+    }
+
     setSubmitting(true);
     try {
-      const res = await fetch('/api/sales', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: profile._id || profile.id, amount, propertyName, dateSold })
-      });
-      if (res.ok) {
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 2500);
-        setAmount('');
-        setPropertyName('');
-        setDateSold('');
-      } else {
-        alert("Failed to log sale.");
-      }
+      const targetId = profile?._id || profile?.id;
+      const saleDoc = {
+        _type: 'sale',
+        propertyName,
+        amount: numericAmount,
+        dateSold,
+        status: 'pending',
+        user: targetId ? { _type: 'reference', _ref: targetId } : undefined,
+        userEmail: profile?.email,
+        userName: profile?.name || profile?.firstName || 'User',
+        createdAt: new Date().toISOString(),
+      };
+
+      await sanityClient.create(saleDoc);
+
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2500);
+      setAmount('');
+      setPropertyName('');
+      setDateSold('');
     } catch (err) {
-      console.error(err);
-      alert("Error logging sale.");
+      console.error('Error logging sale directly to Sanity:', err);
+      alert('Error logging sale. Please check your network connection.');
     } finally {
       setSubmitting(false);
     }
@@ -570,6 +580,7 @@ export function Dashboard() {
     </div>
   );
 }
+
 
 
 
