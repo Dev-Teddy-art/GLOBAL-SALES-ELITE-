@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Camera, Loader2, Upload, X } from 'lucide-react';
 import { AvatarSelector } from './AvatarSelector';
@@ -58,6 +59,39 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
 
   const currentImage = profile?.profileImage || profile?.avatarUrl;
 
+  const renderModal = () => {
+    if (!showModal) return null;
+
+    return createPortal(
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl w-full max-w-md relative text-white animate-in fade-in zoom-in-95 duration-150">
+          <button 
+            type="button" 
+            onClick={() => setShowModal(false)} 
+            className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors cursor-pointer"
+          >
+            <X size={24} />
+          </button>
+          <h3 className="text-xl font-bold mb-6">Customize Profile Photo</h3>
+
+          <AvatarSelector value={profile?.avatarUrl || ''} onChange={handleSelectAvatar} />
+
+          <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
+            <label className="text-sm font-bold text-slate-300">Or Upload Custom Photo</label>
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()} 
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors font-semibold text-white cursor-pointer"
+            >
+              <Upload size={18} /> Choose File
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <>
       <div className={`relative group cursor-pointer ${className || "w-10 h-10"}`} onClick={() => setShowModal(true)}>
@@ -78,25 +112,7 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
         </div>
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl w-full max-w-md relative text-white">
-            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-              <X size={24} />
-            </button>
-            <h3 className="text-xl font-bold mb-6">Customize Profile Photo</h3>
-
-            <AvatarSelector value={profile?.avatarUrl || ''} onChange={handleSelectAvatar} />
-
-            <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
-              <label className="text-sm font-bold text-slate-300">Or Upload Custom Photo</label>
-              <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors font-semibold text-white">
-                <Upload size={18} /> Choose File
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderModal()}
 
       <input
         type="file"
