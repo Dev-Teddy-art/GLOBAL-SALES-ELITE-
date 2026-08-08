@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Calculator } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -12,13 +12,13 @@ export const CommissionCalculator: React.FC = () => {
   const getCommissionRate = () => {
     switch (tier) {
       case 'direct':
-        return 0.15; // 15% Personal Direct Sale
+        return 0.15;
       case 'level1':
-        return 0.15; // 15% Level 1 Referral Sale
+        return 0.15;
       case 'level2':
-        return 0.03; // 3% Level 2 Referral Sale
+        return 0.03;
       case 'level3':
-        return 0.04; // 4% Level 3 Referral Sale (Admin only)
+        return 0.04;
       default:
         return 0.15;
     }
@@ -44,15 +44,18 @@ export const CommissionCalculator: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">
-              Property Sale Amount (₦)
+              Property Sale Amount (&#8358;)
             </label>
-            <input
-              type="number"
-              value={saleAmount}
-              onChange={(e) => setSaleAmount(e.target.value === '' ? '' : Number(e.target.value))}
-              placeholder="e.g. 5000000"
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#EF4444] transition-colors"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">&#8358;</span>
+              <input
+                type="number"
+                value={saleAmount}
+                onChange={(e) => setSaleAmount(e.target.value === '' ? '' : Number(e.target.value))}
+                placeholder="5000000"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white font-mono focus:outline-none focus:border-[#EF4444] transition-colors"
+              />
+            </div>
           </div>
 
           <div>
@@ -115,10 +118,10 @@ export const CommissionCalculator: React.FC = () => {
             ESTIMATED EARNINGS
           </span>
           <div className="text-3xl lg:text-4xl font-black text-white font-mono tracking-tight">
-            ₦{calculatedCommission.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            &#8358;{calculatedCommission.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <p className="text-xs text-slate-400">
-            Based on a {(rate * 100).toFixed(0)}% commission rate on a single sale of ₦{currentAmount.toLocaleString()}.
+            Based on a {(rate * 100).toFixed(0)}% commission rate on a single sale of &#8358;{currentAmount.toLocaleString()}.
           </p>
         </div>
       </div>
