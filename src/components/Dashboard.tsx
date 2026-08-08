@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, UserProfile } from '../contexts/AuthContext';
 import { sanityClient } from '../lib/sanity';
@@ -330,7 +330,7 @@ function UserSalesHistory() {
           <thead>
             <tr className="border-b border-gray-200 dark:border-white/10">
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Property</th>
-              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Amount (???)</th>
+              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">AMOUNT (₦)</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Date Sold</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Approval Status</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest text-right">Payout Status</th>
@@ -345,7 +345,7 @@ function UserSalesHistory() {
               sales.map((s) => (
                 <tr key={s._id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                   <td className="py-3 px-4 text-sm font-bold text-gray-900 dark:text-white">{s.propertyName || 'N/A'}</td>
-                  <td className="py-3 px-4 text-sm font-mono text-gray-900 dark:text-white">???{s.amount?.toLocaleString()}</td>
+                  <td className="py-3 px-4 text-sm font-mono text-gray-900 dark:text-white">₦{s.amount?.toLocaleString()}</td>
                   <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{s.dateSold ? new Date(s.dateSold).toLocaleDateString() : 'N/A'}</td>
                   <td className="py-3 px-4">
                     {s.status === 'pending' ? (
@@ -583,6 +583,7 @@ export function Dashboard() {
     </div>
   );
 }
+
 
 
 
