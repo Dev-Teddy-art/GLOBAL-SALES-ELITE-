@@ -38,34 +38,34 @@ export function SettingsPage() {
 
     setIsSaving(true);
     try {
-      const res = await fetch('/api/auth/update-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userId: profile?._id || profile?.id,
+      const targetId = profile?._id || profile?.id;
+      if (targetId) {
+        await sanityClient.patch(targetId).set({
           avatarUrl: formData.avatarUrl,
           bankName: formData.bankName,
           bankAccountNumber: formData.bankAccountNumber,
-          bankAccountName: formData.bankAccountName,
-          ...(formData.newPassword ? { newPassword: formData.newPassword } : {})
-        })
-      });
+          bankAccountName: formData.bankAccountName
+        }).commit();
+      }
 
-      if (res.ok) {
-        const data = await res.json();
-        setSaveMessage("Settings saved successfully!");
-        setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
-        if (data.user) {
-          updateProfile({
-            avatarUrl: formData.avatarUrl,
-            bankName: formData.bankName,
-            bankAccountNumber: formData.bankAccountNumber,
-            bankAccountName: formData.bankAccountName
-          });
-        }
-      } else {
-        const data = await res.json();
-        setErrorMsg(data.error || "Failed to update settings");
+      setSaveMessage("Settings saved successfully!");
+      setFormData(prev => ({ ...prev, newPassword: '', confirmPassword: '' }));
+      
+      if (typeof updateProfile === 'function') {
+        updateProfile({
+          avatarUrl: formData.avatarUrl,
+          bankName: formData.bankName,
+          bankAccountNumber: formData.bankAccountNumber,
+          bankAccountName: formData.bankAccountName
+        });
+      }
+
+      if (formData.newPassword) {
+        fetch('/api/auth/update-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: targetId, newPassword: formData.newPassword })
+        }).catch(() => {});
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Network error");
@@ -162,6 +162,7 @@ export function SettingsPage() {
     </div>
   );
 }
+
 
 
 
