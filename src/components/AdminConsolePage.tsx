@@ -607,6 +607,7 @@ function SuccessAnimation({ show, message, type = 'success' }: { show: boolean, 
 }
 
 export function AdminConsolePage() {
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<(UserProfile & { id: string })[]>([]);
@@ -872,11 +873,70 @@ export function AdminConsolePage() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-      `}</style>
+      `}</style>      {/* User Details Modal */}
+      {isManageModalOpen && focusedUser && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0F172A] border border-white/20 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center font-bold text-white text-xl shadow-lg">
+                  {(focusedUser.displayName || focusedUser.name || focusedUser.email || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">{focusedUser.displayName || focusedUser.name || 'User Profile'}</h3>
+                  <p className="text-xs text-gray-400">{focusedUser.email || 'No email registered'}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsManageModalOpen(false)}
+                className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                <span className="text-xs text-gray-400 block">Referral Code</span>
+                <span className="font-mono font-bold text-red-400">{focusedUser.referralCode || 'N/A'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                <span className="text-xs text-gray-400 block">Sponsor ID</span>
+                <span className="font-mono font-bold text-white">{focusedUser.sponsorId || 'Root / None'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                <span className="text-xs text-gray-400 block">Phone</span>
+                <span className="font-bold text-white">{focusedUser.phone || 'Not provided'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+                <span className="text-xs text-gray-400 block">Role</span>
+                <span className="font-bold text-red-400 capitalize">{focusedUser.role || 'Member'}</span>
+              </div>
+              <div className="bg-white/5 border border-white/10 p-3 rounded-2xl col-span-2">
+                <span className="text-xs text-gray-400 block">Bank Account Info</span>
+                <span className="font-bold text-white block mt-1">
+                  {focusedUser.bankName ? `${focusedUser.bankName} - ${focusedUser.accountNumber} (${focusedUser.accountName})` : 'No banking details saved'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setIsManageModalOpen(false)}
+                className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-white transition-all shadow-lg text-sm"
+              >
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
 
   );
 }
+
 
 
 
