@@ -112,7 +112,7 @@ export const CommissionCalculator: React.FC = () => {
 
         <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 text-center space-y-2">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-            Estimated Single Payout
+            ESTIMATED EARNINGS
           </span>
           <div className="text-3xl lg:text-4xl font-black text-white font-mono tracking-tight">
             ₦{calculatedCommission.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -125,4 +125,3 @@ export const CommissionCalculator: React.FC = () => {
     </div>
   );
 };
-
