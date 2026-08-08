@@ -298,8 +298,8 @@ function SalesHistoryTable({ sales, onTogglePayout, onDeleteSale }: { sales: any
   const pendingPayouts = approvedSales.filter(s => s.payoutStatus !== 'paid');
   const paidPayouts = approvedSales.filter(s => s.payoutStatus === 'paid');
 
-  const pendingVolume = pendingPayouts.reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
-  const paidVolume = paidPayouts.reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
+  const pendingVolume = pendingPayouts.reduce((sum, s) => sum + (Number(s.commission || s.commissionAmount || (s.amount * 0.15)) || 0), 0);
+  const paidVolume = paidPayouts.reduce((sum, s) => sum + (Number(s.commission || s.commissionAmount || (s.amount * 0.15)) || 0), 0);
 
   const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
 
@@ -884,6 +884,7 @@ export function AdminConsolePage() {
 
   );
 }
+
 
 
 
