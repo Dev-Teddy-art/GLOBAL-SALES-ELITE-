@@ -633,13 +633,30 @@ export function AdminConsolePage() {
     const fetchSales = async () => {
       if (!profile) return;
       try {
-        const res = await fetch(`/api/admin/sales?adminId=${profile._id || profile.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSales(data);
-        }
+        // Fallback directly to Sanity query to bypass API routing limits
+        const query = `*[_type == "sale"] | order(_createdAt desc){
+          _id,
+          propertyName,
+          amount,
+          status,
+          payoutStatus,
+          dateSold,
+          "userRef": user->{ _id, displayName, email, profileImage, avatarUrl }
+        }`;
+        const data = await sanityClient.fetch(query);
+        setSales(data || []);
       } catch (err) {
-        console.error("Error fetching sales", err);
+        console.error("Error fetching sales from Sanity", err);
+        // Fallback to API endpoint if direct Sanity fetch fails
+        try {
+          const res = await fetch(`/api/admin/sales?adminId=${profile._id || profile.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setSales(data);
+          }
+        } catch (apiErr) {
+          console.error("Error fetching sales API fallback", apiErr);
+        }
       } finally {
         setSalesLoading(false);
       }
@@ -844,4 +861,5 @@ export function AdminConsolePage() {
 
   );
 }
+
 
