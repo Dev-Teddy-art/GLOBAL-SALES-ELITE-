@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronDown, User, Crown, Network, Search } from 'lucide-react';
 import { UserProfile } from '../contexts/AuthContext';
@@ -50,7 +50,7 @@ export function ReferralTree({ users, rootUserId, isAdminView = false }: Referra
       const node = nodeMap.get(u.id)!;
       const parentId = u.sponsorId;
       
-      let parentNode = null;
+            const parentNode = nodeMap.get(parentId) || Array.from(nodeMap.values()).find((n: any) => n.referralCode === parentId || n.email === parentId);
       if (parentId && parentId !== 'admin') {
         parentNode = nodeMap.get(parentId);
       }
@@ -330,3 +330,4 @@ const TreeNode: React.FC<{
     </div>
   );
 }
+

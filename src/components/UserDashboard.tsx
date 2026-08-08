@@ -729,11 +729,14 @@ export function AdminConsolePage() {
     }
   };
 
-  const handleDeleteSale = async (saleId: string) => {
+    const handleDeleteSale = async (id: string) => {
     try {
-      const res = await fetch('/api/admin/sales/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await sanityClient.delete(id);
+      setSales(prev => prev.filter(s => (s._id || s.id) !== id));
+    } catch (err) {
+      console.error("Failed to delete sale:", err);
+    }
+  };,
         body: JSON.stringify({ adminId: profile?._id || profile?.id, saleId })
       });
       if (res.ok) {
@@ -884,6 +887,8 @@ export function AdminConsolePage() {
 
   );
 }
+
+
 
 
 
