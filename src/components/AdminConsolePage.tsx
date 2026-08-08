@@ -668,6 +668,26 @@ export function AdminConsolePage() {
 
   const handleProcessSale = async (saleId: string, status: 'approved' | 'rejected') => {
     try {
+      // 1. Direct mutation on Sanity document
+      await sanityClient.patch(saleId).set({ status }).commit();
+
+      // 2. Update local state immediately for instant feedback
+      setSales(prev => prev.map(s => s._id === saleId ? { ...s, status } : s));
+
+      // 3. Trigger notification to user via Zoho mail API endpoint
+      const targetSale = sales.find(s => s._id === saleId);
+      if (targetSale?.userRef?.email) {
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: targetSale.userRef.email,
+            subject: `Sale Status Update: ${targetSale.propertyName || 'Property Sale'}`,
+            text: `Your sale for ${targetSale.propertyName || 'Property'} has been marked as ${status.toUpperCase()}.`
+          })
+        }).catch(e => console.error("Zoho email trigger error", e));
+      }
+
       const res = await fetch('/api/admin/sales/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -861,5 +881,6 @@ export function AdminConsolePage() {
 
   );
 }
+
 
 
