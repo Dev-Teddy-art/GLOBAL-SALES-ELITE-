@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+﻿import { sanityClient } from '../lib/sanity';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navbar } from './Navbar';
 import { AvatarSelector } from './AvatarSelector';
@@ -162,6 +163,7 @@ export function SettingsPage() {
     </div>
   );
 }
+
 
 
 
