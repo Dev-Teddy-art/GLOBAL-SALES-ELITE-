@@ -731,19 +731,12 @@ export function AdminConsolePage() {
 
   const handleDeleteSale = async (saleId: string) => {
     try {
-      const res = await fetch('/api/admin/sales/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminId: profile?._id || profile?.id, saleId })
-      });
-      if (res.ok) {
-        setSales(sales.filter(s => s._id !== saleId));
-        setSuccessMessage(`Sale deleted successfully`);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 2500);
-      }
-    } catch (e) {
-      console.error(e);
+      await sanityClient.delete(saleId);
+      setSales(prev => prev.filter(s => (s._id || s.id) !== saleId));
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2500);
+    } catch (err) {
+      console.error("Failed to delete sale:", err);
     }
   };
 
@@ -884,6 +877,7 @@ export function AdminConsolePage() {
 
   );
 }
+
 
 
 
