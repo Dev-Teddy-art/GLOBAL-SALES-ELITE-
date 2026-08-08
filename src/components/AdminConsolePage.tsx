@@ -124,7 +124,7 @@ function AdminBinaryTree({ users, onManageUser }: { users: (UserProfile & { id: 
             onClick={() => {
               const u = nodeMap.get(focusedId);
               if (u) {
-                if (onManageUser) onManageUser(u);
+                setModalUser(u || nodeMap.get(focusedId) || rootUser);
               }
             }}
             className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
@@ -991,10 +991,49 @@ export function AdminConsolePage() {
       )}
 
 
-    </div>
+          {modalUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0F172A] border border-white/20 rounded-3xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-5 text-left text-white">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-bold text-white text-lg">
+                  {(modalUser.displayName || modalUser.name || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{modalUser.displayName || modalUser.name || 'User Profile'}</h3>
+                  <p className="text-xs text-gray-400">{modalUser.email || 'No email registered'}</p>
+                </div>
+              </div>
+              <button onClick={() => setModalUser(null)} className="text-gray-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span className="text-gray-400 block text-[10px]">REFERRAL CODE</span>
+                <span className="font-mono font-bold text-red-400 text-sm">{modalUser.referralCode || 'N/A'}</span>
+              </div>
+              <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                <span className="text-gray-400 block text-[10px]">SPONSOR CODE</span>
+                <span className="font-mono font-bold text-white text-sm">{modalUser.sponsorId || 'Direct'}</span>
+              </div>
+              <div className="bg-white/5 p-3 rounded-xl border border-white/10 col-span-2">
+                <span className="text-gray-400 block text-[10px]">BANK DETAILS</span>
+                <span className="font-bold text-white block mt-0.5">
+                  {modalUser.bankName ? `${modalUser.bankName} - ${modalUser.accountNumber} (${modalUser.accountName})` : 'No banking details saved'}
+                </span>
+              </div>
+            </div>
+
+            <button onClick={() => setModalUser(null)} className="w-full py-2.5 rounded-xl bg-red-600 font-bold text-xs hover:bg-red-500 transition-all">
+              Close Profile
+            </button>
+          </div>
+        </div>
+      )}</div>
 
   );
 }
+
 
 
 
