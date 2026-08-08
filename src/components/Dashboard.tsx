@@ -462,7 +462,7 @@ export function Dashboard() {
     fetchData();
   }, [user, profile]);
 
-  const isFirstLogin = profile?.createdAt === profile?.lastLoginAt;
+  const { isFirstLogin: authIsFirst } = useAuth(); const isFirstLogin = authIsFirst || !profile?.lastLoginAt || profile?.createdAt === profile?.lastLoginAt;
 
   const copyReferralLink = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -570,6 +570,7 @@ export function Dashboard() {
     </div>
   );
 }
+
 
 
 
