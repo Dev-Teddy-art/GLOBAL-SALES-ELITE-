@@ -50,7 +50,7 @@ export function ReferralTree({ users, rootUserId, isAdminView = false }: Referra
       const node = nodeMap.get(u.id)!;
       const parentId = u.sponsorId;
       
-            const parentNode = nodeMap.get(parentId) || Array.from(nodeMap.values()).find((n: any) => n.referralCode === parentId || n.email === parentId);
+            let parentNode = nodeMap.get(parentId) || Array.from(nodeMap.values()).find((n: any) => n.referralCode === parentId || n.email === parentId);
       if (parentId && parentId !== 'admin') {
         parentNode = nodeMap.get(parentId);
       }
@@ -330,4 +330,5 @@ const TreeNode: React.FC<{
     </div>
   );
 }
+
 
