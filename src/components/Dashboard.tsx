@@ -92,7 +92,7 @@ function SalesLogger() {
 
       await sanityClient.create(saleDoc);
 
-      setShowSuccess(true);
+      setShowSuccess(true); window.dispatchEvent(new Event("sale_logged"));
       setTimeout(() => setShowSuccess(false), 2500);
       setAmount('');
       setPropertyName('');
@@ -296,7 +296,7 @@ function UserSalesHistory() {
     const fetchMySales = async () => {
       if (!profile) return;
       try {
-        const data = await sanityClient.fetch(`*[_type == "sale" && userId == $userId] | order(createdAt desc)`, { userId: profile._id || profile.id });
+        const data = await sanityClient.fetch(`*[_type == "sale" && (userId == $userId || userEmail == $email || references($userId))] | order(_createdAt desc)`, { userId: profile._id || profile.id || "", email: profile.email || "" });
         setSales(data);
       } catch (err) {
         console.error("Error fetching user sales", err);
@@ -305,6 +305,9 @@ function UserSalesHistory() {
       }
     };
     fetchMySales();
+    const handleSaleLogged = () => fetchMySales();
+    window.addEventListener("sale_logged", handleSaleLogged);
+    return () => window.removeEventListener("sale_logged", handleSaleLogged);
   }, [profile]);
 
   return (
@@ -580,6 +583,8 @@ export function Dashboard() {
     </div>
   );
 }
+
+
 
 
 
