@@ -278,11 +278,11 @@ function SalesTrendChart({ sales }: { sales: any[] }) {
           <LineChart data={chartData} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(128,128,128,0.2)" vertical={false} />
             <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickMargin={10} />
-            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₦${(value / 1000).toFixed(0)}k`} width={60} />
+            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `&#8358;${(value / 1000).toFixed(0)}k`} width={60} />
             <Tooltip 
               contentStyle={{ backgroundColor: '#1E293B', borderColor: 'rgba(255,255,255,0.1)', color: '#fff', borderRadius: '12px' }}
               itemStyle={{ color: '#10B981', fontWeight: 'bold' }}
-              formatter={(value: number) => [`₦${value.toLocaleString()}`, 'Volume']}
+              formatter={(value: number) => [`&#8358;${value.toLocaleString()}`, 'Volume']}
             />
             <Line type="monotone" dataKey="volume" stroke="#10B981" strokeWidth={4} dot={{ r: 4, fill: '#1E293B', strokeWidth: 2, stroke: '#10B981' }} activeDot={{ r: 6, fill: '#10B981' }} />
           </LineChart>
@@ -332,14 +332,14 @@ function SalesHistoryTable({ sales, onTogglePayout, onDeleteSale }: { sales: any
         <div className="bg-white/90 dark:bg-[#0F172A]/80 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-6 shadow-xl flex flex-col relative overflow-hidden">
            <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-1">Total Payouts Pending</h3>
            <p className="text-3xl font-black text-yellow-600 dark:text-yellow-400 font-mono">
-             ₦{pendingVolume.toLocaleString()}
+             &#8358;{pendingVolume.toLocaleString()}
            </p>
            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-bold">{pendingPayouts.length} Approved Sales awaiting payout</p>
         </div>
         <div className="bg-white/90 dark:bg-[#0F172A]/80 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-6 shadow-xl flex flex-col relative overflow-hidden">
            <h3 className="text-sm font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest mb-1">Total Payouts Paid</h3>
            <p className="text-3xl font-black text-green-600 dark:text-green-400 font-mono">
-             ₦{paidVolume.toLocaleString()}
+             &#8358;{paidVolume.toLocaleString()}
            </p>
            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-bold">{paidPayouts.length} Completed Payouts</p>
         </div>
@@ -359,7 +359,7 @@ function SalesHistoryTable({ sales, onTogglePayout, onDeleteSale }: { sales: any
             <tr className="border-b border-gray-200 dark:border-white/10">
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Realtor Name</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Property</th>
-              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Amount (₦)</th>
+              <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Amount (&#8358;)</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Date</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">Approval Status</th>
               <th className="py-3 px-4 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest text-right">Payout Status</th>
@@ -390,7 +390,7 @@ function SalesHistoryTable({ sales, onTogglePayout, onDeleteSale }: { sales: any
                     {s.propertyName || 'N/A'}
                   </td>
                   <td className="py-3 px-4 text-sm font-mono text-gray-900 dark:text-white">
-                    ₦{s.amount?.toLocaleString()}
+                    &#8358;{s.amount?.toLocaleString()}
                   </td>
                   <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">
                     {s.dateSold ? new Date(s.dateSold).toLocaleDateString() : 'N/A'}
@@ -433,7 +433,7 @@ function SalesHistoryTable({ sales, onTogglePayout, onDeleteSale }: { sales: any
 }
 
 function SalesApprovals({ sales, loading, onProcess }: { sales: any[], loading: boolean, onProcess: (id: string, status: 'approved' | 'rejected') => void }) {
-  const pendingSales = sales.filter(s => s.status === 'pending');
+  const pendingSales = sales.filter(s => !s.status || s.status.toLowerCase() === 'pending');
   const handleProcess = onProcess;
 
 
@@ -477,7 +477,7 @@ function SalesApprovals({ sales, loading, onProcess }: { sales: any[], loading: 
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-gray-900 dark:text-white">₦{w.amount?.toLocaleString()}</p>
+                    <p className="text-sm font-black text-gray-900 dark:text-white">&#8358;{w.amount?.toLocaleString()}</p>
                     {w.status === 'pending' ? (
                       <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded">PENDING</span>
                     ) : w.status === 'approved' ? (
@@ -844,3 +844,4 @@ export function AdminConsolePage() {
 
   );
 }
+
