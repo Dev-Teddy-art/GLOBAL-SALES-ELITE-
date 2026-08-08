@@ -273,7 +273,7 @@ function CommissionCalculator({ role, defaultL1 = 0, defaultL2 = 0, defaultL3 = 
         <div className="bg-gradient-to-br from-[#0F172A] to-[#0F172A] text-white rounded-3xl p-8 flex flex-col justify-center items-center text-center shadow-2xl relative overflow-hidden group border border-[#0F172A]/20">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-[#EF4444] opacity-30 rounded-full blur-2xl group-hover:scale-125 group-hover:opacity-40 transition-all duration-700 pointer-events-none" />
           
-          <span className="text-white/80 font-bold uppercase tracking-widest text-xs mb-4 z-10">Estimated Monthly Earnings</span>
+          <span className="text-white/80 font-bold uppercase tracking-widest text-xs mb-4 z-10">Estimated Earnings</span>
           <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white drop-shadow-md mb-6 z-10 font-mono tracking-tighter">
             {currencyFormatter.format(totalEarnings).replace('NGN', '&#8358;').trim()}
           </span>
@@ -583,6 +583,7 @@ export function Dashboard() {
     </div>
   );
 }
+
 
 
 
