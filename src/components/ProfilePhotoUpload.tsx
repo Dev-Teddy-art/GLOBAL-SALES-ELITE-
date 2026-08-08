@@ -24,26 +24,14 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
     }
 
     setUploading(true);
-    
+
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
-        
-        const res = await fetch('/api/auth/update-profile-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: profile?._id, imageBase64: base64String })
-        });
-        
-        const data = await res.json();
-        if (res.ok) {
-          updateProfile({ profileImage: data.url });
-          setShowModal(false);
-        } else {
-          alert('Failed to upload image: ' + data.error);
-        }
+        await updateProfile({ profileImage: base64String, avatarUrl: base64String });
         setUploading(false);
+        setShowModal(false);
       };
       reader.readAsDataURL(file);
     } catch (err) {
@@ -55,22 +43,17 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
 
   const handleSelectAvatar = async (url: string) => {
     try {
-      const res = await fetch('/api/auth/update-avatar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: profile?._id, avatarUrl: url })
-      });
-      if (res.ok) {
-        updateProfile({ avatarUrl: url, profileImage: undefined });
-      }
+      await updateProfile({ avatarUrl: url, profileImage: url });
+      setShowModal(false);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to set avatar', e);
     }
   };
 
   const getInitials = () => {
-    if (!profile?.displayName) return '?';
-    return profile.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const name = profile?.name || profile?.displayName || (profile?.firstName ? `${profile.firstName} ${profile.lastName || ''}` : '');
+    if (!name.trim()) return '?';
+    return name.trim().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
   const currentImage = profile?.profileImage || profile?.avatarUrl;
@@ -78,14 +61,14 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
   return (
     <>
       <div className={`relative group cursor-pointer ${className || "w-10 h-10"}`} onClick={() => setShowModal(true)}>
-        <div className="w-full h-full rounded-full overflow-hidden bg-gray-200 dark:bg-gray-800 border-2 border-white/20 flex items-center justify-center text-gray-700 dark:text-gray-300 font-bold shadow-sm relative">
+        <div className="w-full h-full rounded-full overflow-hidden bg-slate-800 border-2 border-white/20 flex items-center justify-center text-white font-bold shadow-sm relative">
           {currentImage ? (
             <img src={currentImage} alt="Profile" className="w-full h-full object-cover" />
           ) : (
             <span>{getInitials()}</span>
           )}
-          
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
             {uploading ? (
               <Loader2 size={16} className="text-white animate-spin" />
             ) : (
@@ -94,33 +77,33 @@ export function ProfilePhotoUpload({ className = '' }: { className?: string }) {
           </div>
         </div>
       </div>
-      
+
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#0F172A] border border-gray-200 dark:border-white/10 rounded-3xl p-6 shadow-2xl w-full max-w-md relative">
-            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 dark:text-white transition-colors">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl w-full max-w-md relative text-white">
+            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
               <X size={24} />
             </button>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Customize Profile Photo</h3>
-            
+            <h3 className="text-xl font-bold mb-6">Customize Profile Photo</h3>
+
             <AvatarSelector value={profile?.avatarUrl || ''} onChange={handleSelectAvatar} />
-            
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-white/10 flex flex-col gap-3">
-               <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Or Upload Custom Photo</label>
-               <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 w-full py-3 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl transition-colors font-semibold text-gray-900 dark:text-white">
-                 <Upload size={18} /> Choose File
-               </button>
+
+            <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col gap-3">
+              <label className="text-sm font-bold text-slate-300">Or Upload Custom Photo</label>
+              <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 w-full py-3 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors font-semibold text-white">
+                <Upload size={18} /> Choose File
+              </button>
             </div>
           </div>
         </div>
       )}
-      
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={handleFileChange} 
-        accept="image/*" 
-        className="hidden" 
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
       />
     </>
   );
