@@ -125,3 +125,4 @@ export const CommissionCalculator: React.FC = () => {
     </div>
   );
 };
+
