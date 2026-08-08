@@ -27,7 +27,7 @@ function AdminBinaryTree({ users, onManageUser }: { users: (UserProfile & { id: 
     users.forEach(u => {
       const node = map.get(u.id);
       if (u.sponsorId && u.sponsorId !== 'admin') {
-        const parent = map.get(u.sponsorId);
+        const parent = (map.get(u.sponsorId) || Array.from(map.values()).find((n: any) => n.referralCode === u.sponsorId || n.email === u.sponsorId));
         if (parent) {
           parent.children.push(node);
           // Assign L/R conceptually for binary visual (first child L, second R)
@@ -877,6 +877,7 @@ export function AdminConsolePage() {
 
   );
 }
+
 
 
 
