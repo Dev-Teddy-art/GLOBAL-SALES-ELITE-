@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, UserProfile } from '../contexts/AuthContext';
 import { sanityClient } from '../lib/sanity';
@@ -641,7 +641,7 @@ export function AdminConsolePage() {
           status,
           payoutStatus,
           dateSold,
-          "userRef": user->{ _id, displayName, email, profileImage, avatarUrl }
+          "userRef": user->{ _id, displayName, email, profileImage, avatarUrl, bankName, bankAccountNumber, bankAccountName }
         }`;
         const data = await sanityClient.fetch(query);
         setSales(data || []);
@@ -884,6 +884,7 @@ export function AdminConsolePage() {
 
   );
 }
+
 
 
 
